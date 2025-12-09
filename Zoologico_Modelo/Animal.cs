@@ -10,7 +10,7 @@ namespace Zoologico_Modelo
     public class Animal
     {
         [Key] public int Id {  get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         public int EspecieId {  get; set; }
         public int RazaId {  get; set; }
