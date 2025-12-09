@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 
 namespace Zoologico.API
 {
@@ -7,6 +8,18 @@ namespace Zoologico.API
     {
         public static void Main(string[] args)
         {
+            //==============================================================
+            // Configurar Serilog leyendo desde appsettings.json
+            //==============================================================
+            var config = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .Build();
+
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(config)
+                .CreateLogger();
+            Log.Information("Iniciado el proceso de LOGGER");
+
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddDbContext<ZoologicoAPIContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("ZoologicoAPIContext") ?? throw new InvalidOperationException("Connection string 'ZoologicoAPIContext' not found.")));
