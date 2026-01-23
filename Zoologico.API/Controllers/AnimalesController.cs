@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Zoologico_Modelo;
-
+using Serilog;
 namespace Zoologico.API.Controllers
 {
     [Route("api/[controller]")]
@@ -24,14 +24,15 @@ namespace Zoologico.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Animal>>> GetAnimal()
         {
-            return await _context.Animal.ToListAsync();
+            Log.Information("Iniciando la consulta de todas las especies.");
+            return await _context.Animales.ToListAsync();
         }
 
         // GET: api/Animales/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Animal>> GetAnimal(int id)
         {
-            var animal = await _context.Animal.FindAsync(id);
+            var animal = await _context.Animales.FindAsync(id);
 
             if (animal == null)
             {
@@ -77,7 +78,7 @@ namespace Zoologico.API.Controllers
         [HttpPost]
         public async Task<ActionResult<Animal>> PostAnimal(Animal animal)
         {
-            _context.Animal.Add(animal);
+            _context.Animales.Add(animal);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetAnimal", new { id = animal.Id }, animal);
@@ -87,13 +88,13 @@ namespace Zoologico.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAnimal(int id)
         {
-            var animal = await _context.Animal.FindAsync(id);
+            var animal = await _context.Animales.FindAsync(id);
             if (animal == null)
             {
                 return NotFound();
             }
 
-            _context.Animal.Remove(animal);
+            _context.Animales.Remove(animal);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -101,7 +102,7 @@ namespace Zoologico.API.Controllers
 
         private bool AnimalExists(int id)
         {
-            return _context.Animal.Any(e => e.Id == id);
+            return _context.Animales.Any(e => e.Id == id);
         }
     }
 }

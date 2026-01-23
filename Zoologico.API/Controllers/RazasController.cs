@@ -24,14 +24,14 @@ namespace Zoologico.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Raza>>> GetRaza()
         {
-            return await _context.Raza.ToListAsync();
+            return await _context.Razas.ToListAsync();
         }
 
         // GET: api/Razas/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Raza>> GetRaza(int id)
         {
-            var raza = await _context.Raza.FindAsync(id);
+            var raza = await _context.Razas.FindAsync(id);
 
             if (raza == null)
             {
@@ -77,7 +77,7 @@ namespace Zoologico.API.Controllers
         [HttpPost]
         public async Task<ActionResult<Raza>> PostRaza(Raza raza)
         {
-            _context.Raza.Add(raza);
+            _context.Razas.Add(raza);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetRaza", new { id = raza.Id }, raza);
@@ -87,13 +87,13 @@ namespace Zoologico.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRaza(int id)
         {
-            var raza = await _context.Raza.FindAsync(id);
+            var raza = await _context.Razas.FindAsync(id);
             if (raza == null)
             {
                 return NotFound();
             }
 
-            _context.Raza.Remove(raza);
+            _context.Razas.Remove(raza);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -101,7 +101,7 @@ namespace Zoologico.API.Controllers
 
         private bool RazaExists(int id)
         {
-            return _context.Raza.Any(e => e.Id == id);
+            return _context.Razas.Any(e => e.Id == id);
         }
     }
 }
