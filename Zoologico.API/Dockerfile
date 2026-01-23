@@ -1,30 +1,36 @@
-# Consulte https://aka.ms/customizecontainer para aprender a personalizar su contenedor de depuración y cómo Visual Studio usa este Dockerfile para compilar sus imágenes para una depuración más rápida.
-
-# Esta fase se usa cuando se ejecuta desde VS en modo rápido (valor predeterminado para la configuración de depuración)
+# 1. Base para ejecutar la app
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
+# Exponemos el puerto 505 que es el que detectamos en tus logs
+EXPOSE 505
+ENV ASPNETCORE_URLS=http://+:505
 
-
-# Esta fase se usa para compilar el proyecto de servicio
+# 2. Etapa de construcción
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+
+# Copiamos los archivos de proyecto para restaurar dependencias
+COPY ["ZoologicoMVC/ZoologicoMVC.csproj", "ZoologicoMVC/"]
 COPY ["Zoologico.API/Zoologico.API.csproj", "Zoologico.API/"]
 COPY ["Zoologico_Modelo/Zoologico_Modelo.csproj", "Zoologico_Modelo/"]
-RUN dotnet restore "./Zoologico.API/Zoologico.API.csproj"
+
+# Restauramos basándonos en el proyecto MVC
+RUN dotnet restore "ZoologicoMVC/ZoologicoMVC.csproj"
+
+# Copiamos todo el código fuente
 COPY . .
-WORKDIR "/src/Zoologico.API"
-RUN dotnet build "./Zoologico.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# Esta fase se usa para publicar el proyecto de servicio que se copiará en la fase final.
+# Compilamos el proyecto MVC
+WORKDIR "/src/ZoologicoMVC"
+RUN dotnet build "ZoologicoMVC.csproj" -c Release -o /app/build
+
+# 3. Etapa de publicación
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./Zoologico.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "ZoologicoMVC.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# Esta fase se usa en producción o cuando se ejecuta desde VS en modo normal (valor predeterminado cuando no se usa la configuración de depuración)
+# 4. Configuración final para Render
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Zoologico.API.dll"]
+# Punto de entrada: ahora ejecutamos el MVC
+ENTRYPOINT ["dotnet", "ZoologicoMVC.dll"]
