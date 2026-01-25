@@ -29,7 +29,7 @@ namespace Zoologico.API
             var optionsBuilder = new DbContextOptionsBuilder<ZoologicoAPIContext>();
 
             // Usamos la misma cadena de conexión de tu JSON
-            optionsBuilder.UseNpgsql("Host=dpg-d4nqpbshg0os739jstv0-a.oregon-postgres.render.com;Port=5432;Database=zoologicoapi;Username=admin;Password=FdcsLQmerRgylwouTaHcf86MgASGfeo5;Ssl Mode=Require;Trust Server Certificate=true;");
+            optionsBuilder.UseNpgsql("Host=dpg-d5r9u60gjchc73fo7b90-a.oregon-postgres.render.com;Port=5432;Database=zoologico_xiel;Username=zoologico_xiel_user;Password=SwxM1D8Ek9SLVI9m0uJbkqHtNxHnHq87;SslMode=Require;TrustServerCertificate=true;");
 
             return new ZoologicoAPIContext(optionsBuilder.Options);
         }
