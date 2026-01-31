@@ -10,7 +10,7 @@ WORKDIR /src
 COPY ["ZoologicoMVC/ZoologicoMVC.csproj", "ZoologicoMVC/"]
 COPY ["Zoologico.API/Zoologico.API.csproj", "Zoologico.API/"]
 COPY ["Zoologico_Modelo/Zoologico_Modelo.csproj", "Zoologico_Modelo/"]
-
+ 
 RUN dotnet restore "ZoologicoMVC/ZoologicoMVC.csproj"
 COPY . .
 

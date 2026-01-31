@@ -1,6 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-using Zoologico.API;
-
 namespace ZoologicoMVC
 {
     public class Program
@@ -8,19 +5,39 @@ namespace ZoologicoMVC
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            builder.Services.AddDbContext<ZoologicoAPIContext>(options =>
-             options.UseNpgsql(builder.Configuration.GetConnectionString("ZoologicoAPIContext")));
 
-            // Add services to the container.
+            // Configuración: appsettings + env vars
+            builder.Configuration
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+                .AddEnvironmentVariables();
+
+            // MVC
             builder.Services.AddControllersWithViews();
+
+            // Session (opcional pero recomendado)
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+
+            // HttpClient para consumir la API (NO localhost en Render)
+            builder.Services.AddHttpClient("Api", c =>
+            {
+                var baseUrl = builder.Configuration["Api:BaseUrl"];
+                if (string.IsNullOrWhiteSpace(baseUrl))
+                    throw new InvalidOperationException("Falta configurar Api:BaseUrl (env var Api__BaseUrl).");
+
+                c.BaseAddress = new Uri(baseUrl);
+            });
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
@@ -29,6 +46,7 @@ namespace ZoologicoMVC
 
             app.UseRouting();
 
+            app.UseSession();
             app.UseAuthorization();
 
             app.MapControllerRoute(
